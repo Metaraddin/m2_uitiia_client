@@ -1,4 +1,4 @@
-import './App.css';
+ import './App.css';
 import Weather from './pages/Weather';
 import Calculator from "./pages/Calculator";
 import SignIn from './pages/SignIn';

@@ -1,5 +1,5 @@
 import {makeAutoObservable} from 'mobx';
-import Auth from "../utils/user";
+import User from "../utils/user";
 
 export default class Store {
     user = {}
@@ -24,7 +24,7 @@ export default class Store {
 
     async login(email, password, remember) {
         try {
-            const response = await Auth.login(email, password, remember)
+            const response = await User.login(email, password, remember)
             localStorage.setItem('access_token', response.data.Token.access_token)
             this.setAuth(true)
             this.setUser(response.data.User)
@@ -37,7 +37,7 @@ export default class Store {
 
     async createUser(email, password, firstName, lastName, middleName) {
         try {
-            const response = await Auth.createUser(email, password, firstName, lastName, middleName)
+            const response = await User.createUser(email, password, firstName, lastName, middleName)
             localStorage.setItem('access_token', response.data.Token.access_token)
             this.setAuth(true)
             this.setUser(response.data.User)
@@ -49,7 +49,7 @@ export default class Store {
 
     async logout() {
         try {
-            const response = await Auth.logout()
+            const response = await User.logout()
             localStorage.removeItem('access_token')
             this.setAuth(false)
             this.setUser({})
@@ -61,15 +61,31 @@ export default class Store {
     async checkAccess() {
         this.setLoading(true)
         try {
-            const response = await Auth.getCurrentUser()
-            console.log(response)
+            const response = await User.getCurrentUser()
             this.setAuth(true)
-            this.setUser(response.data.User)
+            this.setUser(response.data)
             return true
         } catch (e) {
             console.log(e.response?.data?.message)
         } finally {
             this.setLoading(false)
+        }
+    }
+
+    async getAvatarCurrentUser() {
+        try {
+            const response = await User.getAvatarCurrentUser()
+            return response.data
+        } catch (e) {
+            console.log(e.response?.data?.message)
+        }
+    }
+
+    async updateAvatarCurrentUser(avatar) {
+        try {
+            const response = await User.updateAvatarCurrentUser(avatar)
+        } catch (e) {
+            console.log(e.response?.data?.message)
         }
     }
 }

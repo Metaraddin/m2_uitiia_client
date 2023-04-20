@@ -18,4 +18,12 @@ export default class User {
     static async getCurrentUser() {
         return api.get(`${route}/curr`)
     }
+
+    static async getAvatarCurrentUser() {
+        return api.get(`${route}/curr/avatar`)
+    }
+
+    static async updateAvatarCurrentUser(avatar) {
+        return api.patch(`${route}/curr/avatar`, {avatar})
+    }
 }
