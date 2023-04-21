@@ -24,6 +24,10 @@ export default class User {
     }
 
     static async updateAvatarCurrentUser(avatar) {
-        return api.patch(`${route}/curr/avatar`, {avatar})
+        return api.patch(`${route}/curr/avatar`, {avatar}, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
     }
 }

@@ -19,9 +19,21 @@ import {useDropzone} from 'react-dropzone';
 function Profile() {
     const {store} = useContext(Context)
     const navigate = useNavigate()
+    const [image, setImage] = useState({
+        imageSrc: store.user.avatar_uri
+            ? `${API_URL}/${store.user.avatar_uri}`
+            : `${API_URL}/static/avatars/default.png`,
+        imageHash: Date.now()
+    })
     const onDrop = useCallback(acceptedFiles => {
-        console.log(acceptedFiles)
-        store.updateAvatarCurrentUser(acceptedFiles)
+        let formData = new FormData()
+        formData.append('image', acceptedFiles[0])
+        store.updateAvatarCurrentUser(acceptedFiles[0]).then(() => {
+            setImage(image => ({
+                ...image,
+                imageHash: Date.now()
+            }))
+        })
     }, [])
     const {getRootProps, getInputProps, open} = useDropzone({
         onDrop,
@@ -52,9 +64,7 @@ function Profile() {
                     <CardMedia
                         component="img"
                         height="140"
-                        image={store.user.avatar_uri
-                            ? `${API_URL}/${store.user.avatar_uri}`
-                            : require('../static/images/profile.jpg')}
+                        image={`${image.imageSrc}?${image.imageHash}`}
                         onClick={open}
                     />
                     <CardContent>
