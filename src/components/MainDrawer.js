@@ -51,6 +51,23 @@ export default function MainDrawer() {
         {
             name: 'Задание 3',
             pages: []
+        },
+        {
+            name: 'Задание 4',
+            pages: [
+                {
+                    name: 'Новости',
+                    icon: <Calculate />,
+                    path: '/news',
+                    index: 5
+                },
+                {
+                    name: 'Чат',
+                    icon: <Calculate />,
+                    path: '/chat',
+                    index: 6
+                },
+            ]
         }
     ]
 
