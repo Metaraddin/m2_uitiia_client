@@ -22,6 +22,10 @@ export default class Store {
         this.isLoading = bool
     }
 
+    readAccessToken = () => {
+        return localStorage.getItem('access_token')
+    }
+
     async login(email, password, remember) {
         try {
             const response = await User.login(email, password, remember)
