@@ -6,7 +6,7 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Box from '@mui/material/Box';
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Context } from "../index";
 
 
@@ -19,70 +19,41 @@ const MESSAGE_TYPES = {
 
 function Chat() {
     const { store } = useContext(Context)
-    const [chatHistory, setChatHistory] = useState([
-        {type: "connection", email: "metaraddin@gmail.com", datatime: "2023-05-09 22:58:38.425591"}
-    ])
-    const [messageText, setMessageText] = useState('')
-    // const [chatHistory, setChatHistory] = useState([
-    //     { type: MESSAGE_TYPES.CONNECTION, email'klim_zhukov@example.com' },
-    //     { type: MESSAGE_TYPES.CONNECTION, user: store.user },
-    //     { type: MESSAGE_TYPES.OUTGOING, text: 'Спасибо, Клим Саныч', datetime: '11:00' },
-    //     { type: MESSAGE_TYPES.INCOMING, text: 'Старались', user: { email: 'klim_zhukov@example.com' }, datetime: '11:00' },
-    //     { type: MESSAGE_TYPES.OUTGOING, text: 'Честно говоря, потраченного времени жаль', datetime: '11:01' },
-    //     { type: MESSAGE_TYPES.INCOMING, text: 'Да', user: { email: 'klim_zhukov@example.com' }, datetime: '11:01' },
-    //     { type: MESSAGE_TYPES.OUTGOING, text: 'Пятикратно переваренный кал', datetime: '11:01' },
-    //     { type: MESSAGE_TYPES.INCOMING, text: 'Да', user: { email: 'klim_zhukov@example.com' }, datetime: '11:01' },
-    //     { type: MESSAGE_TYPES.DISCONNECTION, user: { email: 'klim_zhukov@example.com' } },
-    //     { type: MESSAGE_TYPES.DISCONNECTION, user: store.user },
-    //     { type: MESSAGE_TYPES.CONNECTION, user: { email: 'klim_zhukov@example.com' } },
-    //     { type: MESSAGE_TYPES.CONNECTION, user: store.user },
-    //     { type: MESSAGE_TYPES.OUTGOING, text: 'Спасибо, Клим Саныч', datetime: '11:00' },
-    //     { type: MESSAGE_TYPES.INCOMING, text: 'Старались', user: { email: 'klim_zhukov@example.com' }, datetime: '11:00' },
-    //     { type: MESSAGE_TYPES.OUTGOING, text: 'Честно говоря, потраченного времени жаль', datetime: '11:01' },
-    //     { type: MESSAGE_TYPES.INCOMING, text: 'Да', user: { email: 'klim_zhukov@example.com' }, datetime: '11:01' },
-    //     { type: MESSAGE_TYPES.OUTGOING, text: 'Пятикратно переваренный кал', datetime: '11:01' },
-    //     { type: MESSAGE_TYPES.INCOMING, text: 'Да', user: { email: 'klim_zhukov@example.com' }, datetime: '11:01' },
-    //     { type: MESSAGE_TYPES.DISCONNECTION, user: { email: 'klim_zhukov@example.com' } },
-    //     { type: MESSAGE_TYPES.DISCONNECTION, user: store.user }
-    // ])
-
-    const ws = useRef(null)
+    const [ws, setWs] = useState()
+    const [textValue, setTextValue] = useState('')
+    const [history, setHistory] = useState([])
 
     useEffect(() => {
-        ws.current = new WebSocket(`ws://localhost:8000/chat?token=${store.readAccessToken()}`)
-        ws.current.onopen = () => {
-            // message = { type: MESSAGE_TYPES.CONNECTION, user: store.user}
-            // setChatHistory((history) => [
-            //     ...history,
-            //     message
-            // ])
-            // ws.current.send(message)
-            console.log('OPEN')
-        }
-        ws.current.onclose = () => {
-            console.log('CLOSE')
-        }
-        gettiongData()
-        return () => ws.current.close()
-    }, [ws])
+        const ws = new WebSocket(`ws://localhost:8000/chat?token=${store.readAccessToken()}`)
+        setWs(ws)
 
-    const gettiongData = useCallback(() => {
-        if (!ws.current) return
-        ws.current.onmessage = e => {
-            console.log(e)
+        ws.onmessage = (e) => {
             const message = JSON.parse(e.data)
-
-            setChatHistory((history) => [
+            setHistory((history) => [
                 ...history,
                 message
             ])
-            console.log('MESSAGE')
         }
+
+        setWs(ws)
+        return () => ws.close()
     }, [])
+
+    const sendMessage = () => {
+        ws.send(textValue)
+        ws.onmessage = (e) => {
+            const message = JSON.parse(e.data)
+            setHistory((history) => [
+                ...history,
+                message
+            ])
+        }
+        setTextValue('')
+    }
 
     const handleKeyDown = (event) => {
         if (event.key === 'Enter') {
-            ws.current.send(messageText)
+            sendMessage()
         }
     }
 
@@ -91,7 +62,7 @@ function Chat() {
             item = JSON.parse(item)
         }
         catch (e) {
-            console.log(item)
+            item = item
         }
         if (item.type === MESSAGE_TYPES.MESSAGE) {
             if (item.email === store.user.email) return (
@@ -105,16 +76,16 @@ function Chat() {
                 </Grid>
             )
         }
-        // if (item.type === MESSAGE_TYPES.CONNECTION) return (
-        //     <Grid item xs={12}>
-        //         <ListItemText align='center' secondary={`${item.email} подключился к чату`} />
-        //     </Grid>
-        // )
-        // if (item.type === MESSAGE_TYPES.DISCONNECTION) return (
-        //     <Grid item xs={12}>
-        //         <ListItemText align='center' secondary={`${item.email} отключился от чата`} />
-        //     </Grid>
-        // )
+        if (item.type === MESSAGE_TYPES.CONNECTION) return (
+            <Grid item xs={12}>
+                <ListItemText align='center' secondary={`${item.email} подключился к чату`} />
+            </Grid>
+        )
+        if (item.type === MESSAGE_TYPES.DISCONNECTION) return (
+            <Grid item xs={12}>
+                <ListItemText align='center' secondary={`${item.email} отключился от чата`} />
+            </Grid>
+        )
     })
 
     return (
@@ -130,7 +101,7 @@ function Chat() {
         >
             <Grid item xs={9} width='40vw' sx={{maxHeight: '70%'}}>
                 <List sx={{ overflowY: 'auto', maxHeight: '100%' }}>
-                    {chatHistory.map((item, index) => (
+                    {history.map((item, index) => (
                         <ListItem key={index}>
                             <Grid container>
                                 <MessageComponent item={item} />
@@ -142,12 +113,12 @@ function Chat() {
                     id="outlined-basic-email" 
                     label="Введите сообщение" 
                     fullWidth
-                    onChange={(e) => { setMessageText(e.target.value) }}
+                    onChange={(e) => { setTextValue(e.target.value) }}
                     onKeyDown={handleKeyDown}
                 />
             </Grid>
         </Box>
-    )
+    )    
 }
 
 export default observer(Chat)
