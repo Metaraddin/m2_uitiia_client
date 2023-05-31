@@ -48,7 +48,7 @@ function News() {
     };
 
     const newsList = useMemo(() => {
-        return news.map((post) => {
+        return news?.map((post) => {
             return (
                 <Grid item xs='auto' key={post.id}>
                     <TgwPost key={post.id} link={`m2_uitiia_channel/${post.id}`}/>

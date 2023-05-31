@@ -6,14 +6,32 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Box from '@mui/material/Box';
+import SendIcon from '@mui/icons-material/Send';
 import { useState, useEffect } from "react";
 import { Context } from "../index";
+import { Avatar, Button, Divider, ListItemAvatar, Fab, Paper, InputBase, IconButton } from "@mui/material";
+import {API_URL} from "../http";
 
 
 const MESSAGE_TYPES = {
     MESSAGE: 'message',
-    CONNECTION: 'connection',
-    DISCONNECTION: 'disconnection'
+    // CONNECTION: 'connection',
+    // DISCONNECTION: 'disconnection'
+}
+
+const MONTHS = {
+    0: 'января',
+    1: 'февраля',
+    2: 'марта',
+    3: 'апреля',
+    4: 'мая',
+    5: 'июня',
+    6: 'июля',
+    7: 'августа',
+    8: 'сентября',
+    9: 'окрября',
+    10: 'ноября',
+    11: 'декабря',
 }
 
 
@@ -53,6 +71,7 @@ function Chat() {
 
     const handleKeyDown = (event) => {
         if (event.key === 'Enter') {
+            event.preventDefault()
             sendMessage()
         }
     }
@@ -65,27 +84,41 @@ function Chat() {
             item = item
         }
         if (item.type === MESSAGE_TYPES.MESSAGE) {
+            const now = new Date(Date.now())
+            const textDate = `${now.getHours()}:${now.getMinutes()}`
             if (item.email === store.user.email) return (
                 <Grid item xs={12}>
-                    <ListItemText align='right' primary={item.text} secondary={item.datetime} />
+                    <ListItem>
+                        <ListItemText align='right' primary={item.text} secondary={textDate} />
+                        <Divider sx={{ marginLeft: 1 }} orientation="vertical" flexItem />
+                        <ListItemAvatar sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Avatar src={item.avatar_uri ? `${API_URL}/${item.avatar_uri}` : `${API_URL}/static/avatars/default.png`}/>
+                        </ListItemAvatar>
+                    </ListItem>
                 </Grid>
             )
             return (
                 <Grid item xs={12}>
-                    <ListItemText align='left' primary={item.text} secondary={`${item.email} ${item.datetime}`} />
+                    <ListItem>
+                        <ListItemAvatar sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Avatar display='flex' src={item.avatar_uri ? `${API_URL}/${item.avatar_uri}` : `${API_URL}/static/avatars/default.png`}/>
+                        </ListItemAvatar>
+                        <Divider sx={{ marginRight: 1 }} orientation="vertical" flexItem />
+                        <ListItemText align='left' primary={item.text} secondary={`${item.email} ${textDate}`} />
+                    </ListItem>
                 </Grid>
             )
         }
-        if (item.type === MESSAGE_TYPES.CONNECTION) return (
-            <Grid item xs={12}>
-                <ListItemText align='center' secondary={`${item.email} подключился к чату`} />
-            </Grid>
-        )
-        if (item.type === MESSAGE_TYPES.DISCONNECTION) return (
-            <Grid item xs={12}>
-                <ListItemText align='center' secondary={`${item.email} отключился от чата`} />
-            </Grid>
-        )
+        // if (item.type === MESSAGE_TYPES.CONNECTION) return (
+        //     <Grid item xs={12}>
+        //         <ListItemText align='center' secondary={`${item.email} подключился к чату`} />
+        //     </Grid>
+        // )
+        // if (item.type === MESSAGE_TYPES.DISCONNECTION) return (
+        //     <Grid item xs={12}>
+        //         <ListItemText align='center' secondary={`${item.email} отключился от чата`} />
+        //     </Grid>
+        // )
     })
 
     return (
@@ -109,13 +142,22 @@ function Chat() {
                         </ListItem>
                     ))}
                 </List>
-                <TextField 
-                    id="outlined-basic-email" 
-                    label="Введите сообщение" 
-                    fullWidth
-                    onChange={(e) => { setTextValue(e.target.value) }}
-                    onKeyDown={handleKeyDown}
-                />
+                <Paper
+                component="form"
+                sx={{ p: '2px 4px', display: 'flex', alignItems: 'center' }}
+                >
+                    <InputBase
+                        sx={{ ml: 1, flex: 1 }}
+                        placeholder="Введите сообщение"
+                        value={textValue}
+                        onChange={(e) => { setTextValue(e.target.value) }}
+                        onKeyDown={handleKeyDown}
+                    />
+                    <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
+                    <IconButton color="primary" sx={{ p: '10px' }} aria-label="directions">
+                        <SendIcon />
+                    </IconButton>
+                </Paper>
             </Grid>
         </Box>
     )    
