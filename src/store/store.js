@@ -1,5 +1,6 @@
 import {makeAutoObservable} from 'mobx';
 import User from "../utils/user";
+import News from "../utils/news";
 
 export default class Store {
     user = {}
@@ -88,6 +89,23 @@ export default class Store {
     async updateAvatarCurrentUser(avatar) {
         try {
             const response = await User.updateAvatarCurrentUser(avatar)
+        } catch (e) {
+            console.log(e.response?.data?.message)
+        }
+    }
+
+    async createNews(title, content) {
+        try {
+            const response = await News.createNews(title, content)
+        } catch (e) {
+            console.log(e.response?.data?.message)
+        }
+    }
+
+    async getAllNews() {
+        try {
+            const response = await News.getAllNews()
+            return response.data
         } catch (e) {
             console.log(e.response?.data?.message)
         }

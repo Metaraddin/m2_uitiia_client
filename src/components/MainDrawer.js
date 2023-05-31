@@ -60,13 +60,7 @@ export default function MainDrawer() {
                     icon: <Calculate />,
                     path: '/news',
                     index: 5
-                },
-                {
-                    name: 'Чат',
-                    icon: <Calculate />,
-                    path: '/chat',
-                    index: 6
-                },
+                }
             ]
         }
     ]
@@ -94,6 +88,14 @@ export default function MainDrawer() {
                 path: '/profile',
                 index: 4
             }
+        )
+        data[3]['pages'].push(
+            {
+                name: 'Чат',
+                icon: <Calculate />,
+                path: '/chat',
+                index: 6
+            },
         )
     }
 
